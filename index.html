@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Compañero Robot Bip - IA Definitivo</title>
+    <style>
+        body {
+            display: flex; flex-direction: column; align-items: center;
+            background: radial-gradient(circle at center, #2d3142 0%, #1a1c23 100%);
+            margin: 0; padding: 30px 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #f8f8f2; overflow-x: hidden; min-height: 100vh;
+        }
+
+        .robot-container { 
+            text-align: center; margin-bottom: 20px; 
+            perspective: 1000px; position: relative;
+        }
+        .robot-container::before {
+            content: ''; position: absolute; width: 180px; height: 180px;
+            background: radial-gradient(circle, rgba(189, 147, 249, 0.25) 0%, transparent 70%);
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            border-radius: 50%; z-index: 0; animation: respirar-aura 4s infinite alternate;
+        }
+        @keyframes respirar-aura {
+            0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+        }
+
+        .robot {
+            position: relative; cursor: pointer; 
+            display: flex; flex-direction: column; align-items: center;
+            transform-style: preserve-3d; transition: transform 0.1s ease-out; z-index: 1;
+        }
+
+        .antena { width: 8px; height: 30px; background: linear-gradient(#44475a, #6272a4); margin-bottom: -2px; border-radius: 4px; }
+        .antena-punta {
+            width: 18px; height: 18px; 
+            background: radial-gradient(circle at 30% 30%, #ffb8e6, #ff79c6); 
+            border-radius: 50%; margin-bottom: -2px; 
+            animation: palpitar 2s infinite alternate;
+            box-shadow: 0 0 12px #ff79c6;
+        }
+        @keyframes palpitar {
+            0% { box-shadow: 0 0 5px #ff79c6; transform: scale(1); }
+            100% { box-shadow: 0 0 25px #ff79c6; transform: scale(1.1); }
+        }
+
+        .cabeza {
+            width: 130px; height: 100px; background-color: #bd93f9;
+            border-radius: 25px; position: relative; z-index: 3;
+            border: 4px solid #6272a4; 
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.3), inset 10px 10px 20px rgba(255,255,255,0.4), 0 15px 25px rgba(0,0,0,0.5);
+            transform-style: preserve-3d; transition: transform 0.1s ease-out;
+        }
+
+        .ojo-container {
+            width: 24px; height: 24px; background-color: #282a36; border-radius: 50%;
+            position: absolute; top: 35px; overflow: hidden;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.8);
+            transition: all 0.3s ease;
+        }
+        .ojo-container.izq { left: 25px; } .ojo-container.der { right: 25px; }
+        
+        .ojo-pupila {
+            width: 12px; height: 12px; background-color: #8be9fd; border-radius: 50%;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px #8be9fd, inset -2px -2px 4px rgba(0,0,0,0.5);
+            transition: transform 0.1s ease-out;
+        }
+
+        .cabeza.feliz .ojo-container { height: 12px; border-radius: 0 0 12px 12px; top: 40px; }
+        .cabeza.triste .ojo-pupila { background-color: #ff5555; box-shadow: 0 0 8px #ff5555; }
+
+        .boca {
+            width: 40px; height: 8px; background-color: #44475a; position: absolute;
+            bottom: 20px; left: 50%; transform: translateX(-50%) translateZ(10px); 
+            border-radius: 4px; transition: all 0.3s ease;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.6);
+        }
+        .robot:hover .boca { height: 20px; border-radius: 0 0 50px 50px; background-color: #50fa7b; }
+
+        .cuerpo-wrapper { display: flex; align-items: flex-start; margin-top: -10px; z-index: 2; transform-style: preserve-3d; }
+        .brazo {
+            width: 25px; height: 70px; background-color: #8be9fd;
+            border-radius: 20px; margin: 10px; border: 4px solid #6272a4;
+            transform-origin: top center; transition: transform 0.3s ease;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2), inset 5px 5px 10px rgba(255,255,255,0.5);
+        }
+        .cuerpo {
+            width: 90px; height: 100px; background-color: #bd93f9; border-radius: 20px;
+            border: 4px solid #6272a4; display: flex; justify-content: center; align-items: center;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.3), inset 10px 10px 20px rgba(255,255,255,0.4), 0 10px 20px rgba(0,0,0,0.4);
+            transform: translateZ(20px);
+        }
+        .corazon { 
+            color: #ff5555; font-size: 28px; animation: palpitar-corazon 1.5s infinite alternate; 
+            cursor: pointer; transition: transform 0.2s; text-shadow: 0 0 10px rgba(255, 85, 85, 0.6);
+        }
+        .corazon.latido-rapido { animation: palpitar-corazon 0.2s infinite alternate; }
+        @keyframes palpitar-corazon { 0% { transform: scale(1); } 100% { transform: scale(1.25); } }
+
+        .piernas-wrapper { display: flex; gap: 20px; margin-top: -15px; z-index: 1; transform: translateZ(-10px); }
+        .pierna {
+            width: 24px; height: 50px; background-color: #6272a4;
+            border-radius: 10px; border: 4px solid #44475a; transform-origin: top center;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.4);
+        }
+
+        @keyframes saludarIzq { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-130deg); } }
+        @keyframes saludarDer { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(130deg); } }
+        @keyframes hablarIzq { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-30deg); } }
+        @keyframes hablarDer { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(30deg); } }
+
+        .animar-saludo .brazo-izq { animation: saludarIzq 0.6s ease-in-out 3; }
+        .animar-saludo .brazo-der { animation: saludarDer 0.6s ease-in-out 3; }
+        .animar-hablar .brazo-izq { animation: hablarIzq 0.4s infinite; }
+        .animar-hablar .brazo-der { animation: hablarDer 0.4s infinite; }
+
+        @keyframes baileCuerpo {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-15px) rotate(-8deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(-15px) rotate(8deg); }
+        }
+        @keyframes bailePiernaIzq { 0%, 100% { transform: rotate(0deg); } 50% { transform: translateY(-10px) rotate(-30deg); } }
+        @keyframes bailePiernaDer { 0%, 100% { transform: rotate(0deg); } 50% { transform: translateY(-10px) rotate(30deg); } }
+
+        .animar-baile { animation: baileCuerpo 0.5s infinite; }
+        .animar-baile .brazo-izq { animation: saludarIzq 0.3s infinite alternate; }
+        .animar-baile .brazo-der { animation: saludarDer 0.3s infinite alternate; }
+        .animar-baile .pierna-izq { animation: bailePiernaIzq 0.5s infinite; }
+        .animar-baile .pierna-der { animation: bailePiernaDer 0.5s infinite reverse; }
+
+        .chat-container {
+            width: 90%; max-width: 450px; background-color: #44475a; border-radius: 18px;
+            padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); z-index: 10;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .chat-box {
+            height: 300px; background-color: #282a36; border-radius: 12px; padding: 15px;
+            overflow-y: auto; display: flex; flex-direction: column; gap: 14px; margin-bottom: 15px;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .mensaje { 
+            padding: 12px 16px; border-radius: 16px; max-width: 82%; font-size: 0.95rem; line-height: 1.4; 
+            display: flex; gap: 10px; align-items: flex-start; word-break: break-word;
+        }
+        .mensaje.bip { 
+            background-color: #6272a4; color: #f8f8f2; align-self: flex-start; 
+            border-bottom-left-radius: 4px; box-shadow: 2px 4px 10px rgba(0,0,0,0.2); 
+        }
+        .mensaje.yo { 
+            background-color: #50fa7b; color: #282a36; align-self: flex-end; 
+            border-bottom-right-radius: 4px; font-weight: 500; box-shadow: -2px 4px 10px rgba(0,0,0,0.2); 
+        }
+        
+        .btn-voz { background: #ff79c6; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; color: white; display: flex; justify-content: center; align-items: center; flex-shrink: 0; transition: transform 0.2s; box-shadow: 0 3px 6px rgba(0,0,0,0.3); margin-top: 2px; }
+        .btn-voz:hover { transform: scale(1.1); background: #ff92d0; }
+
+        .escribiendo-dots span {
+            height: 8px; width: 8px; margin: 0 2px; background-color: #f8f8f2;
+            border-radius: 50%; display: inline-block; animation: bounce 1.3s infinite ease-in-out;
+        }
+        .escribiendo-dots span:nth-child(2) { animation-delay: -1.1s; }
+        .escribiendo-dots span:nth-child(3) { animation-delay: -0.9s; }
+        @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+
+        .input-area { display: flex; gap: 8px; }
+        input[type="text"] { flex-grow: 1; padding: 12px 15px; border-radius: 10px; border: none; outline: none; background-color: #f8f8f2; color: #44475a; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); font-size: 0.95rem; }
+        
+        button.accion-btn { 
+            padding: 10px 14px; background-color: #8be9fd; color: #282a36; border: none; border-radius: 10px; 
+            cursor: pointer; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: transform 0.1s;
+        }
+        button.accion-btn:active { transform: translateY(2px); }
+        button.mic-btn { background-color: #ff5555; color: white; }
+        button.mic-btn.escuchando { background-color: #50fa7b; animation: palpitar 0.8s infinite alternate; }
+        
+        .instruccion { color: #8be9fd; font-size: 0.8rem; text-align: center; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <p class="instruccion">👆 Mueve el cursor, haz clic en el corazón o usa el micrófono para hablar con Bip</p>
+
+    <div class="robot-container">
+        <div class="robot" id="robot" onclick="iniciarBip(event)">
+            <div class="antena-punta"></div>
+            <div class="antena"></div>
+            <div class="cabeza" id="cabeza">
+                <div class="ojo-container izq"><div class="ojo-pupila"></div></div>
+                <div class="ojo-container der"><div class="ojo-pupila"></div></div>
+                <div class="boca"></div>
+            </div>
+            <div class="cuerpo-wrapper">
+                <div class="brazo brazo-izq"></div>
+                <div class="cuerpo">
+                    <div class="corazon" id="corazon" onclick="acelerarCorazon(event)" title="¡Hazme clic!">❤</div>
+                </div>
+                <div class="brazo brazo-der"></div>
+            </div>
+            <div class="piernas-wrapper">
+                <div class="pierna pierna-izq"></div>
+                <div class="pierna pierna-der"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box"></div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Escribe o habla con Bip..." autocomplete="off" onkeypress="handleKeyPress(event)">
+            <button class="accion-btn mic-btn" id="mic-btn" onclick="alternarMicfono()" title="Hablar por micrófono">🎤</button>
+            <button class="accion-btn" onclick="enviarMensaje()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        let bipDespierto = false;
+        let nombreUsuario = localStorage.getItem("bip_nombre_usuario") || "";
+        const robotElement = document.getElementById("robot");
+        const cabezaElement = document.getElementById("cabeza");
+        const pupilas = document.querySelectorAll(".ojo-pupila");
+        const corazon = document.getElementById("corazon");
+        const chatBox = document.getElementById("chat-box");
+        const micBtn = document.getElementById("mic-btn");
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const historialGuardado = localStorage.getItem("bip_historial_chat");
+            if (historialGuardado) {
+                chatBox.innerHTML = historialGuardado;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } else {
+                agregarMensajeAlChat("bip", "¡Hola! Soy Bip. ¿Cómo te llamas o de qué te gustaría hablar hoy?");
+            }
+        });
+
+        function guardarHistorial() {
+            localStorage.setItem("bip_historial_chat", chatBox.innerHTML);
+        }
+
+        document.addEventListener("mousemove", (e) => {
+            const centroX = window.innerWidth / 2;
+            const centroY = window.innerHeight / 2;
+            const offsetX = (e.clientX - centroX) / 25; 
+            const offsetY = (e.clientY - centroY) / 25;
+
+            robotElement.style.transform = `rotateY(${offsetX / 2}deg) rotateX(${-offsetY / 2}deg)`;
+            cabezaElement.style.transform = `rotateY(${offsetX}deg) rotateX(${-offsetY}deg)`;
+
+            pupilas.forEach(pupila => {
+                const moveX = Math.max(-5, Math.min(5, (e.clientX - centroX) / 40));
+                const moveY = Math.max(-5, Math.min(5, (e.clientY - centroY) / 40));
+                pupila.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+            });
+        });
+
+        function acelerarCorazon(event) {
+            event.stopPropagation();
+            if(!corazon.classList.contains("latido-rapido")){
+                corazon.classList.add("latido-rapido");
+                setTimeout(() => corazon.classList.remove("latido-rapido"), 3000);
+            }
+        }
+
+        function cambiarExpresion(tipo) {
+            cabezaElement.classList.remove("feliz", "triste");
+            if(tipo) cabezaElement.classList.add(tipo);
+        }
+
+        function iniciarBip(event) {
+            if (!bipDespierto) {
+                bipDespierto = true;
+                robotElement.classList.add("animar-saludo");
+                let saludo = nombreUsuario ? `¡Qué gusto verte de nuevo, ${nombreUsuario}!` : "¡Hola! Ya estoy conectado.";
+                leerTexto(saludo);
+                setTimeout(() => robotElement.classList.remove("animar-saludo"), 1800);
+            }
+        }
+
+        function leerTexto(texto) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(texto);
+            utterance.lang = 'es-ES';
+            utterance.pitch = 1.2;
+            utterance.rate = 1.0;
+            
+            utterance.onstart = () => {
+                if (!robotElement.classList.contains("animar-baile")) {
+                    robotElement.classList.add("animar-hablar");
+                }
+            };
+            utterance.onend = () => robotElement.classList.remove("animar-hablar");
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function alternarMicfono() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Tu navegador no soporta reconocimiento de voz. Usa Google Chrome.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'es-ES';
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                micBtn.classList.add("escuchando");
+                micBtn.innerText = "👂";
+            };
+
+            recognition.onresult = (event) => {
+                const textoTranscrito = event.results[0][0].transcript;
+                document.getElementById("user-input").value = textoTranscrito;
+                enviarMensaje();
+            };
+
+            recognition.onerror = () => {
+                micBtn.classList.remove("escuchando");
+                micBtn.innerText = "🎤";
+            };
+
+            recognition.onend = () => {
+                micBtn.classList.remove("escuchando");
+                micBtn.innerText = "🎤";
+            };
+
+            recognition.start();
+        }
+
+        async function enviarMensaje() {
+            const inputField = document.getElementById("user-input");
+            const textoUsuario = inputField.value.trim();
+            if (textoUsuario === "") return;
+
+            if (!nombreUsuario && (textoUsuario.toLowerCase().includes("me llamo") || textoUsuario.toLowerCase().includes("soy "))) {
+                const palabras = textoUsuario.split(" ");
+                nombreUsuario = palabras[palabras.length - 1];
+                localStorage.setItem("bip_nombre_usuario", nombreUsuario);
+            }
+
+            agregarMensajeAlChat("yo", textoUsuario);
+            inputField.value = ""; 
+
+            const textoMinusculas = textoUsuario.toLowerCase();
+
+            if (textoMinusculas.includes("piedra") || textoMinusculas.includes("papel") || textoMinusculas.includes("tijera")) {
+                const opciones = ["piedra", "papel", "tijera"];
+                const eleccionBip = opciones[Math.floor(Math.random() * opciones.length)];
+                agregarMensajeAlChat("bip", `🎮 ¡Elegí ${eleccionBip}! ¿Volvemos a jugar?`);
+                leerTexto(`Elegí ${eleccionBip}`);
+                return;
+            }
+
+            if(textoUsuario.toLowerCase().includes("feliz") || textoUsuario.toLowerCase().includes("bien")) cambiarExpresion("feliz");
+            else if(textoUsuario.toLowerCase().includes("triste") || textoUsuario.toLowerCase().includes("mal")) cambiarExpresion("triste");
+            else cambiarExpresion("");
+
+            const idEscritura = mostrarEscribiendo();
+            const quiereBailar = textoMinusculas.includes("baila") || textoMinusculas.includes("danza");
+
+            try {
+                const promptFinal = nombreUsuario ? `El usuario se llama ${nombreUsuario}. Dice: ${textoUsuario}` : textoUsuario;
+
+                // URL local configurada para pruebas en tu PC
+                const res = await fetch('http://localhost:3000/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mensaje: promptFinal })
+                });
+                
+                const data = await res.json();
+                
+                removerEscribiendo(idEscritura);
+                agregarMensajeAlChat("bip", data.respuesta);
+                
+                if (quiereBailar) {
+                    cambiarExpresion("feliz");
+                    robotElement.classList.add("animar-baile");
+                    setTimeout(() => robotElement.classList.remove("animar-baile"), 5000);
+                } else {
+                    robotElement.classList.add("animar-saludo");
+                    setTimeout(() => robotElement.classList.remove("animar-saludo"), 600);
+                }
+
+            } catch (error) {
+                removerEscribiendo(idEscritura);
+                agregarMensajeAlChat("bip", "No me puedo conectar con mi núcleo de IA. Revisa tu conexión.");
+            }
+        }
+
+        function mostrarEscribiendo() {
+            const id = "escribe-" + Date.now();
+            const div = document.createElement("div");
+            div.classList.add("mensaje", "bip");
+            div.id = id;
+            div.innerHTML = `<div class="escribiendo-dots"><span></span><span></span><span></span></div>`;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return id;
+        }
+
+        function removerEscribiendo(id) {
+            const elemento = document.getElementById(id);
+            if (elemento) elemento.remove();
+        }
+
+        function agregarMensajeAlChat(quien, texto) {
+            const nuevoMensaje = document.createElement("div");
+            nuevoMensaje.classList.add("mensaje", quien);
+
+            if (quien === "bip") {
+                let textoVisual = texto.replace(/\n/g, "<br>").replace(/[*#_~`]/g, "");
+                nuevoMensaje.innerHTML = `
+                    <span>${textoVisual}</span>
+                    <button class="btn-voz">🔊</button>
+                `;
+
+                const botonVoz = nuevoMensaje.querySelector('.btn-voz');
+                let textoParaVoz = texto.replace(/[*#_~`>\-]/g, " ").replace(/[\u{1F600}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+                
+                botonVoz.onclick = function() {
+                    leerTexto(textoParaVoz);
+                };
+            } else {
+                nuevoMensaje.innerText = texto;
+            }
+
+            chatBox.appendChild(nuevoMensaje);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            guardarHistorial();
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === "Enter") enviarMensaje();
+        }
+    </script>
+</body>
+</html>
