@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="cobalt">
+<html lang="es" data-theme="dracula">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bip Robot - Asistente Mecánico IA</title>
-    <meta name="description" content="Compañero virtual robótico con anatomía articulada, cinemática expresiva, síntesis y reconocimiento de voz con IA.">
+    <title>Bip Robot - Compañero IA Interactivo</title>
+    <meta name="description" content="Compañero virtual interactivo con interfaz futurista, animaciones 3D, síntesis y reconocimiento de voz con IA.">
     
-    <!-- Google Fonts: Space Grotesk e Inter -->
+    <!-- Google Fonts: Space Grotesk (Titulares/UI) e Inter (Lectura/Chat) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -16,19 +16,51 @@
 </head>
 <body>
 
-    <!-- Contenedor Principal Adaptable (2 columnas en PC, 1 en móvil) -->
+    <!-- Contenedor Principal Adaptable (2 columnas en escritorio, 1 en móvil) -->
     <div class="app-layout">
 
-        <!-- Panel Izquierdo: Robot Articulado, Estado y Temas Sólidos -->
+        <!-- Panel Izquierdo: Robot, Estado y Personalización -->
         <aside class="panel-robot">
             
-            <!-- Barra de Estado Mate -->
+            <!-- Barra Superior de Estado con Menú Circular de Colores -->
             <header class="top-bar">
                 <div class="status-badge">
                     <span class="status-dot" id="status-dot"></span>
                     <span id="status-text">Conectando...</span>
                 </div>
                 <div class="top-actions">
+                    <!-- Menú Circular Expandible de Temas de Color -->
+                    <div class="palette-dial-wrapper" id="palette-dial-wrapper">
+                        <button class="icon-btn palette-fab" id="palette-fab" title="Personalizar color" aria-label="Cambiar tema de color" aria-expanded="false">
+                            <svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+                                <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+                                <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
+                                <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
+                                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>
+                            </svg>
+                            <span class="active-color-dot" id="active-color-dot"></span>
+                        </button>
+                        <div class="palette-popup" id="palette-popup" role="menu" aria-label="Opciones de tema">
+                            <button class="palette-item active" data-theme="dracula" role="menuitem" title="Tema Dracula">
+                                <span class="palette-swatch dracula"></span>
+                                <span class="palette-name">Dracula</span>
+                            </button>
+                            <button class="palette-item" data-theme="cyberpunk" role="menuitem" title="Tema Cyberpunk">
+                                <span class="palette-swatch cyberpunk"></span>
+                                <span class="palette-name">Cyber</span>
+                            </button>
+                            <button class="palette-item" data-theme="matrix" role="menuitem" title="Tema Matrix">
+                                <span class="palette-swatch matrix"></span>
+                                <span class="palette-name">Matrix</span>
+                            </button>
+                            <button class="palette-item" data-theme="solar" role="menuitem" title="Tema Solar">
+                                <span class="palette-swatch solar"></span>
+                                <span class="palette-name">Solar</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <button class="icon-btn" id="sfx-toggle" title="Alternar audio" aria-label="Alternar efectos de sonido">
                         <svg class="svg-icon" id="sfx-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -46,136 +78,65 @@
                 </div>
             </header>
 
-            <!-- Selector de Skins Sólidos -->
-            <nav class="theme-selector" aria-label="Esquemas de color sólidos">
-                <span class="theme-label">Skin</span>
-                <button class="theme-btn active" data-theme="cobalt" title="Cobalto y Titanio"><span class="theme-dot cobalt"></span>Cobalto</button>
-                <button class="theme-btn" data-theme="amber" title="Acero y Ámbar"><span class="theme-dot amber"></span>Ámbar</button>
-                <button class="theme-btn" data-theme="forest" title="Oliva y Esmeralda"><span class="theme-dot forest"></span>Bosque</button>
-                <button class="theme-btn" data-theme="monochrome" title="Monocromo Minimal"><span class="theme-dot monochrome"></span>Minimal</button>
-            </nav>
-
-            <!-- Robot Bip con Anatomía Articulada -->
+            <!-- Robot Bip 3D Interactivo con Silueta Original -->
             <div class="robot-container">
-                <div class="robot robot-idle" id="robot" role="button" tabindex="0" aria-label="Robot Bip articulado">
-                    
-                    <!-- Antena Superior Minimalista -->
-                    <div class="antena-sistema">
-                        <div class="antena-punta"></div>
-                        <div class="antena-mastil"></div>
-                    </div>
-
-                    <!-- Cabeza con Pernos, Cejas, Visor y Boca Segmentada -->
-                    <div class="cabeza-wrapper">
-                        <div class="perno-cabeza perno-izq"></div>
-                        <div class="cabeza" id="cabeza">
-                            <div class="visor-frontal">
-                                <!-- Cejas Robóticas Expresivas -->
-                                <div class="cejas-wrapper">
-                                    <div class="ceja ceja-izq"></div>
-                                    <div class="ceja ceja-der"></div>
-                                </div>
-                                <!-- Ojos y Pupilas -->
-                                <div class="ojos-wrapper">
-                                    <div class="ojo-container izq"><div class="ojo-pupila"></div></div>
-                                    <div class="ojo-container der"><div class="ojo-pupila"></div></div>
-                                </div>
-                                <!-- Boca Modular Segmentada -->
-                                <div class="boca-modular">
-                                    <span class="boca-seg seg-1"></span>
-                                    <span class="boca-seg seg-2"></span>
-                                    <span class="boca-seg seg-3"></span>
-                                </div>
+                <div class="robot robot-flotando" id="robot" role="button" tabindex="0" aria-label="Robot Bip interactivo">
+                    <div class="antena-punta"></div>
+                    <div class="antena"></div>
+                    <div class="cabeza" id="cabeza">
+                        <div class="ojo-container izq">
+                            <div class="ojo-pupila">
+                                <span class="ojo-reflejo"></span>
                             </div>
                         </div>
-                        <div class="perno-cabeza perno-der"></div>
-                    </div>
-
-                    <!-- Cuello Articulado -->
-                    <div class="cuello-articulado">
-                        <span class="anillo-cuello"></span>
-                        <span class="anillo-cuello"></span>
-                    </div>
-
-                    <!-- Torso con Hombros, Blindaje y Reactor Sólido -->
-                    <div class="torso-ensamblaje">
-                        
-                        <!-- Brazo Izquierdo Articulado (Hombro + Bíceps + Codo + Antebrazo + Pinza) -->
-                        <div class="brazo-articulado brazo-izq">
-                            <div class="hombro"></div>
-                            <div class="brazo-segmento superior"></div>
-                            <div class="codo-pivote"></div>
-                            <div class="brazo-segmento inferior"></div>
-                            <div class="mano-pinza">
-                                <span class="diente-pinza izq"></span>
-                                <span class="diente-pinza der"></span>
+                        <div class="ojo-container der">
+                            <div class="ojo-pupila">
+                                <span class="ojo-reflejo"></span>
                             </div>
                         </div>
-
-                        <!-- Torso Central con Placas y Núcleo de Energía Sólido -->
-                        <div class="torso">
-                            <div class="placa-pecho">
-                                <div class="tornillo t-sup-izq"></div>
-                                <div class="tornillo t-sup-der"></div>
-                                <!-- Núcleo de Estado Mecánico -->
-                                <div class="nucleo-mecanico" id="reactor" role="button" tabindex="0" aria-label="Núcleo de energía de Bip" title="Pulsar núcleo central">
-                                    <div class="bisel-nucleo">
-                                        <div class="disco-rotatorio"></div>
-                                        <div class="centro-estado"></div>
-                                    </div>
-                                </div>
-                                <div class="tornillo t-inf-izq"></div>
-                                <div class="tornillo t-inf-der"></div>
-                            </div>
-                        </div>
-
-                        <!-- Brazo Derecho Articulado -->
-                        <div class="brazo-articulado brazo-der">
-                            <div class="hombro"></div>
-                            <div class="brazo-segmento superior"></div>
-                            <div class="codo-pivote"></div>
-                            <div class="brazo-segmento inferior"></div>
-                            <div class="mano-pinza">
-                                <span class="diente-pinza izq"></span>
-                                <span class="diente-pinza der"></span>
-                            </div>
-                        </div>
-
+                        <div class="boca"></div>
                     </div>
-
-                    <!-- Cintura Pélvica y Piernas Articuladas con Pies -->
-                    <div class="tren-inferior">
-                        <div class="cintura-pelve"></div>
-                        <div class="piernas-wrapper">
-                            <!-- Pierna Izquierda -->
-                            <div class="pierna-articulada pierna-izq">
-                                <div class="muslo"></div>
-                                <div class="rodilla"></div>
-                                <div class="pantorrilla"></div>
-                                <div class="pie-suela"></div>
-                            </div>
-                            <!-- Pierna Derecha -->
-                            <div class="pierna-articulada pierna-der">
-                                <div class="muslo"></div>
-                                <div class="rodilla"></div>
-                                <div class="pantorrilla"></div>
-                                <div class="pie-suela"></div>
+                    <div class="cuerpo-wrapper">
+                        <div class="brazo brazo-izq"></div>
+                        <div class="cuerpo">
+                            <!-- Corazón Robótico Moderno Interactivo -->
+                            <div class="corazon-robotico" id="corazon" role="button" tabindex="0" aria-label="Corazón cibernético de Bip" title="Tocar el corazón de Bip">
+                                <svg class="cyber-heart-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Chasis mecha exterior -->
+                                    <path class="heart-frame" d="M24 11 C20 6 12 5 7.5 10 C3 15 3 22.5 8 28.5 L24 42 L40 28.5 C45 22.5 45 15 40.5 10 C36 5 28 6 24 11 Z"></path>
+                                    <!-- Cámaras y placas facetadas mecha -->
+                                    <path class="heart-facet-left" d="M24 15 L14 15 L10 20 L13 26 L24 35 Z"></path>
+                                    <path class="heart-facet-right" d="M24 15 L34 15 L38 20 L35 26 L24 35 Z"></path>
+                                    <!-- Micro-ranura divisoria y circuitos cibernéticos -->
+                                    <line class="heart-seam" x1="24" y1="12" x2="24" y2="38"></line>
+                                    <path class="heart-circuit" d="M14 18 L19 23 L24 23"></path>
+                                    <path class="heart-circuit" d="M34 18 L29 23 L24 23"></path>
+                                    <!-- Núcleo cibernético central pulsante -->
+                                    <circle class="heart-core-glow" cx="24" cy="23" r="4.8"></circle>
+                                    <circle class="heart-core-center" cx="24" cy="23" r="2.2"></circle>
+                                </svg>
                             </div>
                         </div>
+                        <div class="brazo brazo-der"></div>
                     </div>
-
+                    <div class="piernas-wrapper">
+                        <div class="pierna pierna-izq"></div>
+                        <div class="pierna pierna-der"></div>
+                    </div>
                 </div>
+                <!-- Sombra de suelo reactiva a la levitación -->
+                <div class="sombra-suelo" id="sombra-suelo"></div>
             </div>
 
-            <p class="instruccion">Mueve el cursor para orientar a Bip, toca su núcleo central o interactúa por voz</p>
+            <p class="instruccion">Mueve el cursor, toca su corazón o habla por el micrófono</p>
         </aside>
 
-        <!-- Panel Derecho: Conversación y Chat con Colores Sólidos -->
+        <!-- Panel Derecho: Conversación y Chat -->
         <main class="panel-chat">
 
-            <!-- Chips de Sugerencias Rápidas -->
+            <!-- Chips de Sugerencias Rápidas Vectoriales -->
             <section class="sugerencias-chips" aria-label="Sugerencias rápidas">
-                <button class="chip-btn" data-prompt="¡Hola Bip! Preséntate">
+                <button class="chip-btn" data-prompt="¡Hola Bip! ¿Qué puedes hacer hoy?">
                     <svg class="chip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                     Presentación
                 </button>
@@ -197,7 +158,7 @@
                 </button>
             </section>
 
-            <!-- Contenedor del Chat en Colores Sólidos Mate -->
+            <!-- Contenedor del Chat Glassmorphism -->
             <section class="chat-container">
                 <div class="chat-box" id="chat-box" role="log" aria-live="polite"></div>
                 <div class="input-area">
