@@ -1,15 +1,4 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-require('dotenv').config();
 const { GoogleGenAI } = require('@google/genai');
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// Servir archivos estáticos del frontend (HTML, CSS, JS)
-app.use(express.static(__dirname));
 
 const apiKey = process.env.GEMINI_API_KEY;
 const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
@@ -17,8 +6,6 @@ let ai = null;
 
 if (apiKey) {
     ai = new GoogleGenAI({ apiKey });
-} else {
-    console.log("ℹ️ GEMINI_API_KEY no detectada. Operando con respuestas locales inteligentes.");
 }
 
 const respuestasLocales = [
@@ -33,12 +20,10 @@ const respuestasLocales = [
 async function obtenerRespuestaBip(mensaje, contexto = []) {
     const msgLower = (mensaje || "").toLowerCase();
 
-    // Si hay cliente de IA configurado, intentamos consultar Gemini con contexto
     if (ai) {
         try {
             const contents = [];
             if (Array.isArray(contexto) && contexto.length > 0) {
-                // Tomar como máximo los 3 mensajes anteriores
                 const ultimos3 = contexto.slice(-3);
                 ultimos3.forEach(item => {
                     if (item && item.text) {
@@ -65,11 +50,10 @@ async function obtenerRespuestaBip(mensaje, contexto = []) {
                 return { respuesta: response.text, fuente: 'gemini' };
             }
         } catch (apiError) {
-            console.warn("Aviso: Error o límite en API de Gemini. Activando respaldo inteligente local:", apiError.message || apiError);
+            console.warn("Aviso: Error en API de Gemini en Netlify Function:", apiError.message || apiError);
         }
     }
 
-    // Respaldo inteligente local heurístico
     let textoRespuesta = "";
     if (msgLower.includes("hora")) {
         textoRespuesta = `🕒 Ahora mismo son las ${new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}. ¡El tiempo vuela cuando conversamos!`;
@@ -91,33 +75,63 @@ async function obtenerRespuestaBip(mensaje, contexto = []) {
     return { respuesta: textoRespuesta, fuente: 'local' };
 }
 
-app.post('/api/chat', async (req, res) => {
+exports.handler = async function(event) {
+    const headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+    };
+
+    if (event.httpMethod === 'OPTIONS') {
+        return { statusCode: 200, headers, body: '' };
+    }
+
+    if (event.httpMethod === 'GET') {
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                status: 'ok',
+                iaConfigurada: Boolean(ai),
+                modelo: MODEL_NAME,
+                plataforma: 'Netlify Functions'
+            })
+        };
+    }
+
+    if (event.httpMethod !== 'POST') {
+        return {
+            statusCode: 405,
+            headers,
+            body: JSON.stringify({ error: 'Método no permitido' })
+        };
+    }
+
     try {
-        const { mensaje, contexto } = req.body || {};
+        const body = JSON.parse(event.body || '{}');
+        const { mensaje, contexto } = body;
+
         if (!mensaje || typeof mensaje !== 'string') {
-            return res.status(400).json({ respuesta: "¡Bip! No pude escuchar bien tu mensaje. ¿Podrías repetirlo?" });
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ respuesta: "¡Bip! No pude escuchar bien tu mensaje. ¿Podrías repetirlo?" })
+            };
         }
 
         const resultado = await obtenerRespuestaBip(mensaje, contexto);
-        res.json(resultado);
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify(resultado)
+        };
     } catch (error) {
-        console.error("Error crítico en /api/chat:", error);
-        res.status(500).json({ respuesta: "¡Hola! Mis circuitos sufrieron una pequeña interferencia, pero sigo aquí para ti.", fuente: 'error' });
+        console.error("Error en Netlify function chat:", error);
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ respuesta: "¡Hola! Mis circuitos sufrieron una pequeña interferencia temporal.", fuente: 'error' })
+        };
     }
-});
-
-app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'ok',
-        iaConfigurada: Boolean(ai),
-        modelo: MODEL_NAME,
-        timestamp: new Date().toISOString()
-    });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🤖 Servidor de Bip listo en http://localhost:${PORT}`);
-});
-
-module.exports = { app, obtenerRespuestaBip };
+};
